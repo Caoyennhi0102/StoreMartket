@@ -90,6 +90,20 @@
         <button type="button" id="btnDelete" disabled>XÓA</button>  <!-- Nút xóa được disable cho đến khi tìm thấy bộ phận -->
     </div>
 </form>
+@*
+    <script>
+            $(document).ready(function () {
+                // Kiểm tra Session
+                var isSessionActive = @isSessionActive.ToString().ToLower();
+
+                // Nếu Session hết hạn, vô hiệu hóa form
+                if (!isSessionActive) {
+                    $("#myForm input, #myForm button").prop("disabled", true);
+                    alert("Phiên làm việc của bạn đã hết hạn. Vui lòng đăng nhập lại.");
+                }
+            });
+    </script>
+*@
 <script>
 
     $("#btnDelete").click(function () {

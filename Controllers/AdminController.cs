@@ -1,11 +1,13 @@
 ﻿using StoreMartket.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.Web.Services.Description;
 
 namespace StoreMartket.Controllers
 {
@@ -350,6 +352,85 @@ namespace StoreMartket.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = $"Có lỗi xảy ra trong quá trình xóa {ex.Message}" });
+            }
+        }
+     
+        public ActionResult GetStore()
+        {
+            try
+            {
+                var getStore = _sqlConnectionDatabase.CuaHangs.Select(Ch => new { Ch.MaCuaHang, Ch.TenCH }).ToList();
+                return Json(getStore, JsonRequestBehavior.AllowGet);
+            }catch(Exception ex)
+            {
+                return Json(new { success = false, message = $"Có lỗi xảy ra trong quá trình gọi danh sách cửa hàng{ex.Message}" });
+            }
+        }
+        public string CreateCodeDepartments(string TenBP)
+        {
+            if (string.IsNullOrEmpty(TenBP))
+            {
+                return "Tên bộ phận không được để trống.";
+
+            }
+            string[] from = TenBP.Trim().Split(new char[] {' '},  StringSplitOptions.RemoveEmptyEntries);
+
+            string Firstcharacter = string.Concat(from.Select(t => t.ToString().ToUpper()));
+
+            return $"BP_{Firstcharacter}";
+
+        }
+        [HttpGet]
+        public ActionResult CreateDepartments()
+        {
+            var store = _sqlConnectionDatabase.CuaHangs.Select(ch =>  new {ch.MaCuaHang, ch.TenCH}).ToList();
+            ViewBag.Store = new SelectList(store, "MaCuaHang", "TenCH");
+            return View();
+        }
+        [HttpPost]
+        public ActionResult CreateDepartments(string TenBP, int? maCH)
+        {
+            try
+            {
+                if(string.IsNullOrEmpty(TenBP) || maCH == null)
+                {
+                    return Json(new { success = false, message = "Tên bộ phận và mã cửa hàng không được để trống." });
+
+                }
+                string MaBP = CreateCodeDepartments(TenBP);
+                var department = new BoPhan
+                {
+                    MaBoPhan = MaBP,
+                    TenBoPhan = TenBP,
+                    MaCuaHang =(int) maCH,
+                };
+                _sqlConnectionDatabase.BoPhans.Add(department);
+                _sqlConnectionDatabase.SaveChanges();
+                return Json(new { success = true, message = "Thêm bộ phận thành công!" });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = $"Có lỗi xảy ra trong quá trình thêm bộ phận{ex.Message}" });
+            }
+        }
+        [HttpGet]
+        public ActionResult GetDepartments()
+        {
+            try
+            {
+                var departments = _sqlConnectionDatabase.BoPhans.Select(
+                    bp => new
+                    {
+                        bp.MaBoPhan,
+                        bp.TenBoPhan,
+                        bp.MaCuaHang
+                    })
+                    .ToList();
+                return Json(departments, JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = $"Có lỗi xảy ra khi tải danh sách bộ phận: {ex.Message}" });
             }
         }
 

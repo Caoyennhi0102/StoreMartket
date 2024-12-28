@@ -251,6 +251,7 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\ChangeCredentials.css" />
+    <Content Include="Content\CreateDepartments.css" />
     <Content Include="Content\DeleteStore.css" />
     <Content Include="Content\login.css" />
     <Content Include="Content\Sidebar.css" />
@@ -307,6 +308,7 @@
     <Content Include="Views\Admin\AddStore.cshtml" />
     <Content Include="Views\Admin\UpdateStore.cshtml" />
     <Content Include="Views\Admin\DeleteStore.cshtml" />
+    <Content Include="Views\Admin\CreateDepartments.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
