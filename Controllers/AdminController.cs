@@ -1,4 +1,5 @@
-﻿using StoreMartket.Models;
+﻿using Microsoft.Win32;
+using StoreMartket.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -433,7 +434,66 @@ namespace StoreMartket.Controllers
                 return Json(new { success = false, message = $"Có lỗi xảy ra khi tải danh sách bộ phận: {ex.Message}" });
             }
         }
+        [HttpPost]
+        public ActionResult SearchDepartmentsByID(string MaBP)
+        {
 
+
+            if (string.IsNullOrEmpty(MaBP))
+            {
+                return Json(new { success = false, message = "Mã bộ phận không được để trống." });
+            }
+            var department = _sqlConnectionDatabase.BoPhans.Where(BP => BP.MaBoPhan == MaBP)
+                .Select(BP => new
+                {
+                    BP.MaBoPhan,
+                    BP.TenBoPhan,
+                    BP.MaCuaHang,
+                    TenCuaHang = BP.CuaHang.TenCH
+                })
+                .FirstOrDefault();
+            if (department == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy bộ phận với mã đã cho." });
+            }
+            return Json(new { success = true, data = department });
+        }
+           
+        
+        [HttpGet]
+        public ActionResult UpdateDepartments()
+        {
+            var stores = _sqlConnectionDatabase.CuaHangs
+            .Select(ch => new { ch.MaCuaHang, ch.TenCH })
+            .ToList();
+            ViewBag.Store = new SelectList(stores, "MaCuaHang", "TenCH");
+            return View();
+        }
+        [HttpPost]
+        public ActionResult UpdateDepartments(string maBoPhan, string tenBoPhan, int? maCuaHang)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(maBoPhan) || string.IsNullOrEmpty(tenBoPhan) || maCuaHang == null)
+                {
+                    return Json(new { success = false, message = "Thông tin bộ phận không được để trống." });
+                }
+                var department = _sqlConnectionDatabase.BoPhans.FirstOrDefault(bp => bp.MaBoPhan == maBoPhan);
+
+                if(department == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy bộ phận để cập nhật." });
+                }
+                department.TenBoPhan = tenBoPhan;
+                department.MaCuaHang = (int)maCuaHang;
+                _sqlConnectionDatabase.SaveChanges();
+                return Json(new { success = true, message = "Cập nhật bộ phận thành công!" });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = $"Có lỗi xảy ra: {ex.Message}" });
+            }
+        }
 
 
 

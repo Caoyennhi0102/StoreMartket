@@ -255,6 +255,7 @@
     <Content Include="Content\DeleteStore.css" />
     <Content Include="Content\login.css" />
     <Content Include="Content\Sidebar.css" />
+    <Content Include="Content\UpdateDepartments.css" />
     <Content Include="Content\UpdateStore.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -309,6 +310,7 @@
     <Content Include="Views\Admin\UpdateStore.cshtml" />
     <Content Include="Views\Admin\DeleteStore.cshtml" />
     <Content Include="Views\Admin\CreateDepartments.cshtml" />
+    <Content Include="Views\Admin\UpdateDepartments.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
