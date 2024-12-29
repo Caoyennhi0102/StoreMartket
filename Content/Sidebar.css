@@ -4,12 +4,17 @@
     background-color: #007bff; /* Màu nền cho sidebar */
     color: white; /* Màu chữ trắng */
     height: 100vh; /* Chiều cao toàn màn hình */
-    padding-top: 20px; /* Khoảng cách trên cùng */
+    padding-top: 10px; /* Khoảng cách trên cùng */
     position: fixed; /* Giữ thanh sidebar cố định */
     top: 0;
     left: 0;
     z-index: 1000; /* Đảm bảo thanh sidebar nằm trên cùng */
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Hiệu ứng bóng đổ */
+    height: 100vh; /* Đảm bảo chiều cao của sidebar chiếm toàn bộ chiều cao màn hình */
+    overflow-y: auto; /* Thêm thanh cuộn dọc */
+    overflow-x: hidden; /* Ẩn thanh cuộn ngang nếu có */
+    background-color: #343a40; /* Màu nền tùy chọn */
+    color: white; /* Màu chữ */
 }
 
 /* Avatar Image */

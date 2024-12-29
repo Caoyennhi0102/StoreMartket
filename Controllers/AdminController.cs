@@ -680,6 +680,42 @@ namespace StoreMartket.Controllers
 
 
         }
+        [HttpGet]
+        public ActionResult DeletePosition()
+        {
+            var listCV = _sqlConnectionDatabase.ChucVus.Include(c => c.BoPhan).ToList();
+            ViewBag.DSCV = listCV;
+            var bophans = _sqlConnectionDatabase.BoPhans.ToList();
+            ViewBag.DSBoPhan = new SelectList(listCV, "MaBoPhan", "TenBoPhan");
+            return View();
+        }
+        [HttpPost]
+        public ActionResult DeletePosition(string MaCV)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(MaCV))
+                {
+                    return Json(new { success = false, message = "Mã chức vụ không được để trống." });
+                }
+                var deleteCV = _sqlConnectionDatabase.ChucVus.Find(MaCV);
+                if(deleteCV != null)
+                {
+                    var deletePositionNV = _sqlConnectionDatabase.NhanViens.Where(u => u.MaChucVu == MaCV);
+                    if (deletePositionNV.Any())
+                    {
+                        _sqlConnectionDatabase.NhanViens.RemoveRange(deletePositionNV);
+                    }
+                    _sqlConnectionDatabase.ChucVus.Remove(deleteCV);
+                    _sqlConnectionDatabase.SaveChanges();
+                    return Json(new { success = true, message = "Xóa chức vụ thành công" });
+                }
+                return Json(new { success = false, message = "Mã chức vụ không tồn tại" });
+            }catch(Exception ex)
+            {
+                return Json(new { success = false, message = $"Có lỗi xảy ra trong quá trình xóa chức vụ{ex.Message}"});
+            }
+        }
 
 
 
