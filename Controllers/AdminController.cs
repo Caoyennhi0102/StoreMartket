@@ -2,6 +2,7 @@
 using StoreMartket.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -539,6 +540,145 @@ namespace StoreMartket.Controllers
             {
                 return Json(new { success = true, message = $"Có lỗi xảy ra trong quá trình xóa bộ phận {ex.Message}" });
             }
+        }
+        public string CreatePositionCode(string TenCV)
+        {
+            // Tách chuỗi thành các từ, loại bỏ khoảng trắng thừa
+            var words = TenCV.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Lấy ký tự đầu của mỗi từ và giữ nguyên chữ hoa/thường
+            string MaCV = string.Concat(words.Select(w => w.Substring(0, 1)));
+
+            // Thêm tiền tố "CV_"
+            return "CV_" + MaCV;
+
+        }
+        [HttpGet]
+        public JsonResult GetPositionByDepartments(string maBP)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"Mã bộ phận nhận được: {maBP}");
+                var chucvu = _sqlConnectionDatabase.ChucVus.Where(cv => cv.MaBP == maBP)
+                    .Select(cv => new { cv.MaChucVu, cv.TenChucVu }).ToList();
+                System.Diagnostics.Debug.WriteLine($"Số lượng chức vụ: {chucvu.Count}");
+                return Json(chucvu, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Lỗi: {ex.Message}");
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpGet]
+        public ActionResult AddPosition()
+        {
+            var listCV = _sqlConnectionDatabase.ChucVus.Include(c => c.BoPhan).ToList();
+            ViewBag.DSCV = listCV;
+            var bophans = _sqlConnectionDatabase.BoPhans.ToList();
+            ViewBag.DSBoPhan = new SelectList(listCV, "MaBoPhan", "TenBoPhan");
+            return View();
+
+        }
+        [HttpPost]
+        public  ActionResult AddPosition(string TenCV, string maBP)
+        {
+            try
+            {
+                if(string.IsNullOrEmpty(TenCV) || string.IsNullOrEmpty(maBP))
+                {
+                    return Json(new { success = false, message = "Tên chức vụ và bộ phận không được để trống." });
+                }
+                var MaCV = CreatePositionCode(TenCV);
+                var bophans = _sqlConnectionDatabase.BoPhans.FirstOrDefault(BP => BP.MaBoPhan == maBP);
+                if(bophans == null)
+                {
+                    return Json(new { success = false, message = "Mã bộ phận không tồn tại" });
+                }
+                var newChucVu = new ChucVu
+                {
+                    MaChucVu = MaCV,
+                    TenChucVu = TenCV,
+                    MaBP = maBP,
+                    
+                };
+                _sqlConnectionDatabase.ChucVus.Add(newChucVu);
+                _sqlConnectionDatabase.SaveChanges();
+                return Json(new
+                {
+                    success = true,
+                    MaChucVu = MaCV,
+                    TenChucVu = TenCV,
+                    TenBoPhan = bophans.TenBoPhan
+                    
+                });
+               
+                
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = "Đã xảy ra lỗi trong quá trình thêm chức vụ.", error = ex.Message });
+            }
+        }
+        [HttpPost]
+        public ActionResult SearchPosition(string maCV)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(maCV))
+                {
+                    return Json(new { success = false, message = "Mã chức vụ không được để trống." });
+                }
+
+                var chucvu = _sqlConnectionDatabase.ChucVus.FirstOrDefault(cv => cv.MaChucVu == maCV);
+                if (chucvu == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy chức vụ." });
+                }
+                return Json(new
+                {
+                    success = true,
+                    MaChucVu = chucvu.MaChucVu,
+                    TenCV = chucvu.TenChucVu,
+                    MaBP = chucvu.MaBP,
+                    tenBoPhan = chucvu.BoPhan?.TenBoPhan
+
+
+                });
+            }catch(Exception ex)
+            {
+                return Json(new { success = false, message = $"Có lỗi xảy ra trong quá trình tìm kiếm mã chức vụ{ex.Message}" });
+            }
+        }
+        [HttpGet]
+        public ActionResult UpdatePosition()
+        {
+            var listCV = _sqlConnectionDatabase.ChucVus.Include(c => c.BoPhan).ToList();
+            ViewBag.DSCV = listCV;
+            var bophans = _sqlConnectionDatabase.BoPhans.ToList();
+            ViewBag.DSBoPhan = new SelectList(listCV, "MaBoPhan", "TenBoPhan");
+            return View();
+        }
+        [HttpPost]
+        public ActionResult UpdatePosition(ChucVu chucVu)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingChucVu = _sqlConnectionDatabase.ChucVus.FirstOrDefault(cv => cv.MaChucVu == chucVu.MaChucVu);
+                if(existingChucVu == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy chức vụ cần cập nhật." });
+                }
+                existingChucVu.TenChucVu = chucVu.TenChucVu;
+                existingChucVu.MaBP = chucVu.MaBP;
+                _sqlConnectionDatabase.SaveChanges();
+
+                return Json(new { success = true, message = "Cập nhật chức vụ thành công." });
+
+            }
+            return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+
+
         }
 
 
