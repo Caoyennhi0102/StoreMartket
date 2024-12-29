@@ -75,6 +75,7 @@
         <AssociationConnector Association="QLSTModel.FK__Users__MaNhanVie__45F365D3" ManuallyRouted="false" />
         <AssociationConnector Association="QLSTModel.FK__Users__MaVaiTro__49C3F6B7" ManuallyRouted="false" />
         <AssociationConnector Association="QLSTModel.PhanQuyen" ManuallyRouted="false" />
+        <AssociationConnector Association="QLSTModel.FK_ChucVu_BoPhan" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

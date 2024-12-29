@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="QLSTModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="QLSTModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="BacLuong">
           <Key>
             <PropertyRef Name="Bac" />
@@ -49,6 +49,7 @@
           </Key>
           <Property Name="MaChucVu" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="TenChucVu" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="MaBP" Type="varchar" MaxLength="10" Nullable="false" />
         </EntityType>
         <EntityType Name="Cong">
           <Key>
@@ -846,6 +847,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ChucVu_BoPhan">
+          <End Role="BoPhan" Type="Self.BoPhan" Multiplicity="1" />
+          <End Role="ChucVu" Type="Self.ChucVu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BoPhan">
+              <PropertyRef Name="MaBoPhan" />
+            </Principal>
+            <Dependent Role="ChucVu">
+              <PropertyRef Name="MaBP" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CuaHang_NhanVien">
           <End Role="NhanVien" Type="Self.NhanVien" Multiplicity="1" />
           <End Role="CuaHang" Type="Self.CuaHang" Multiplicity="*" />
@@ -1067,6 +1080,10 @@
             <End Role="VaiTro" EntitySet="VaiTro" />
             <End Role="Users" EntitySet="Users" />
           </AssociationSet>
+          <AssociationSet Name="FK_ChucVu_BoPhan" Association="Self.FK_ChucVu_BoPhan">
+            <End Role="BoPhan" EntitySet="BoPhan" />
+            <End Role="ChucVu" EntitySet="ChucVu" />
+          </AssociationSet>
           <AssociationSet Name="FK_CuaHang_NhanVien" Association="Self.FK_CuaHang_NhanVien">
             <End Role="NhanVien" EntitySet="NhanVien" />
             <End Role="CuaHang" EntitySet="CuaHang" />
@@ -1076,8 +1093,7 @@
             <End Role="Kho" EntitySet="Kho" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="QLSTModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -1101,6 +1117,7 @@
           <Property Name="MaCuaHang" Type="Int32" Nullable="false" />
           <NavigationProperty Name="CuaHang" Relationship="Self.FK__BoPhan__MaCuaHan__398D8EEE" FromRole="BoPhan" ToRole="CuaHang" />
           <NavigationProperty Name="NhanViens" Relationship="Self.FK__NhanVien__MaBoPh__3F466844" FromRole="BoPhan" ToRole="NhanVien" />
+          <NavigationProperty Name="ChucVus" Relationship="QLSTModel.FK_ChucVu_BoPhan" FromRole="BoPhan" ToRole="ChucVu" />
         </EntityType>
         <EntityType Name="ChiTietPhieuNhapHang">
           <Key>
@@ -1135,6 +1152,8 @@
           <Property Name="MaChucVu" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="TenChucVu" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="NhanViens" Relationship="Self.FK__NhanVien__MaChuc__403A8C7D" FromRole="ChucVu" ToRole="NhanVien" />
+          <Property Name="MaBP" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="BoPhan" Relationship="QLSTModel.FK_ChucVu_BoPhan" FromRole="ChucVu" ToRole="BoPhan" />
         </EntityType>
         <EntityType Name="Cong">
           <Key>
@@ -2204,7 +2223,23 @@
             <End Role="Quyen" EntitySet="Quyens" />
             <End Role="VaiTro" EntitySet="VaiTroes" />
           </AssociationSet>
+          <AssociationSet Name="FK_ChucVu_BoPhan" Association="QLSTModel.FK_ChucVu_BoPhan">
+            <End Role="BoPhan" EntitySet="BoPhans" />
+            <End Role="ChucVu" EntitySet="ChucVus" />
+          </AssociationSet>
         </EntityContainer>
+        <Association Name="FK_ChucVu_BoPhan">
+          <End Type="QLSTModel.BoPhan" Role="BoPhan" Multiplicity="1" />
+          <End Type="QLSTModel.ChucVu" Role="ChucVu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BoPhan">
+              <PropertyRef Name="MaBoPhan" />
+            </Principal>
+            <Dependent Role="ChucVu">
+              <PropertyRef Name="MaBP" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2254,6 +2289,7 @@
           <EntitySetMapping Name="ChucVus">
             <EntityTypeMapping TypeName="QLSTModel.ChucVu">
               <MappingFragment StoreEntitySet="ChucVu">
+                <ScalarProperty Name="MaBP" ColumnName="MaBP" />
                 <ScalarProperty Name="MaChucVu" ColumnName="MaChucVu" />
                 <ScalarProperty Name="TenChucVu" ColumnName="TenChucVu" />
               </MappingFragment>

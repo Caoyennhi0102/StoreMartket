@@ -18,6 +18,7 @@ namespace StoreMartket.Models
         public BoPhan()
         {
             this.NhanViens = new HashSet<NhanVien>();
+            this.ChucVus = new HashSet<ChucVu>();
         }
     
         public string MaBoPhan { get; set; }
@@ -27,5 +28,7 @@ namespace StoreMartket.Models
         public virtual CuaHang CuaHang { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<NhanVien> NhanViens { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ChucVu> ChucVus { get; set; }
     }
 }

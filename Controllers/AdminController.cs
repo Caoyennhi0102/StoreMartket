@@ -494,6 +494,52 @@ namespace StoreMartket.Controllers
                 return Json(new { success = false, message = $"Có lỗi xảy ra: {ex.Message}" });
             }
         }
+        [HttpGet]
+        public ActionResult DeleteDepartments()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult DeleteDepartments(string maBP)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(maBP))
+                {
+                    return Json(new { success = false, message = "Mã bộ phận không được để trống." });
+
+                }
+                var bophans = _sqlConnectionDatabase.BoPhans.Find(maBP);
+                if(bophans != null)
+                {
+                    var deleteBPNV = _sqlConnectionDatabase.NhanViens.Where(u => u.MaBoPhan == maBP);
+                    if (deleteBPNV.Any())
+                    {
+                        _sqlConnectionDatabase.NhanViens.RemoveRange(deleteBPNV);
+
+                    }
+                    var deleteBPCV = _sqlConnectionDatabase.ChucVus.Where(u => u.MaBP == maBP);
+                    if (deleteBPNV.Any())
+                    {
+                        _sqlConnectionDatabase.ChucVus.RemoveRange(deleteBPCV);
+                    }
+                    _sqlConnectionDatabase.BoPhans.Remove(bophans);
+                    _sqlConnectionDatabase.SaveChanges();
+                    return Json(new { success = true, message = "Xóa Bộ phận không thành công" });
+
+
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không tìm thấy bộ phận với mã đã cho." });
+                }
+
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = true, message = $"Có lỗi xảy ra trong quá trình xóa bộ phận {ex.Message}" });
+            }
+        }
 
 
 

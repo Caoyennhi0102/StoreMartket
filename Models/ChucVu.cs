@@ -22,8 +22,10 @@ namespace StoreMartket.Models
     
         public string MaChucVu { get; set; }
         public string TenChucVu { get; set; }
+        public string MaBP { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<NhanVien> NhanViens { get; set; }
+        public virtual BoPhan BoPhan { get; set; }
     }
 }
