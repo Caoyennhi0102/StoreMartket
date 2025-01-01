@@ -332,7 +332,7 @@
           <Property Name="TGDangXuat" Type="date" />
           <Property Name="Locked" Type="bit" Nullable="false" />
           <Property Name="MaVaiTro" Type="int" Nullable="false" />
-          <Property Name="DiaChiIP" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="DiaChiIP" Type="nvarchar" MaxLength="50" />
           <Property Name="DNLanDau" Type="bit" Nullable="false" />
           <Property Name="TrangThai" Type="nvarchar" MaxLength="100" Nullable="false" />
         </EntityType>
@@ -1500,7 +1500,7 @@
           <Property Name="TGDangXuat" Type="DateTime" Precision="0" />
           <Property Name="Locked" Type="Boolean" Nullable="false" />
           <Property Name="MaVaiTro" Type="Int32" Nullable="false" />
-          <Property Name="DiaChiIP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DiaChiIP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DNLanDau" Type="Boolean" Nullable="false" />
           <Property Name="TrangThai" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="NhanVien" Relationship="Self.FK__Users__MaNhanVie__45F365D3" FromRole="Users" ToRole="NhanVien" />

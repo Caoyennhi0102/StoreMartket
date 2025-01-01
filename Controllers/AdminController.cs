@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -716,8 +718,83 @@ namespace StoreMartket.Controllers
                 return Json(new { success = false, message = $"Có lỗi xảy ra trong quá trình xóa chức vụ{ex.Message}"});
             }
         }
+        [HttpGet]
+        public ActionResult AddUser()
+        {
+            var listRoles = _sqlConnectionDatabase.VaiTroes.ToList();
+            ViewBag.Vaitro = new SelectList(listRoles, "MaVaiTro", "TenVaiTro");
+            return View();
+        }
+        public ActionResult AddUser(int? MaNV, int? MaVaiTro)
+        {
+            try
+            {
+                if(MaNV == null || MaNV <= 0)
+                {
+                    return Json(new { success = false, message = "Vui lòng nhập mã nhân viên hợp lệ" });
+                }
+                var nhanvien = _sqlConnectionDatabase.NhanViens.FirstOrDefault(u => u.MaNhanVien == MaNV);
+                if (nhanvien == null)
+                {
+                    return Json(new { success = false, message = "Mã nhân viên không tồn tại." });
+                }
+                var existingUser = _sqlConnectionDatabase.Users.FirstOrDefault(u => u.MaNhanVien == MaNV);
+                if(existingUser != null)
+                {
+                    return Json(new { success = false, message = "Nhân viên đã có tài khoản." });
+                }
+                string username = "User_" + MaNV + "_" + GenerateRandomString(5);
+                string password = GenerateRandomString(10);
+                var passwordHashAndSalt = HashPassword(password);
+                
+                var newUser = new User
+                {
+                    MaNhanVien = nhanvien.MaNhanVien,
+                    UserName = username,
+                    PasswordSalt = passwordHashAndSalt.Salt,
+                    PassowrdHasd = passwordHashAndSalt.HashedPassword,
+                    TGDangNhap = DateTime.Now,
+                    TGDangXuat = null,
+                    Locked = false,
+                    DiaChiIP = null,
+                    DNLanDau = true,
+                    MaVaiTro = MaVaiTro.Value,
+                    TrangThai = "Active"
 
-
+                };
+                _sqlConnectionDatabase.Users.Add(newUser);
+                _sqlConnectionDatabase.SaveChanges();
+                return Json(new { success = true, message = "Tạo User thành công" });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = $"Có lỗi xảy ra: {ex.Message}" });
+            }
+        }
+        // Hàm tạo chuỗi ngẫu nhiên
+        private string GenerateRandomString(int length)
+        {
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+-=";
+            StringBuilder randomString = new StringBuilder();
+            Random random = new Random();
+            for (int i = 0; i < length; i++)
+            {
+                randomString.Append(validChars[random.Next(validChars.Length)]);
+            }
+            return randomString.ToString();
+        }
+        // Hàm băm mật khẩu với Salt
+        private (string HashedPassword, string Salt) HashPassword(string password)
+        {
+            using (var hmac = new HMACSHA512())
+            {
+                var salt = GenerateRandomString(16); // Tạo salt ngẫu nhiên
+                hmac.Key = Encoding.UTF8.GetBytes(salt);
+                var hashedPassword = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                return (hashedPassword, salt);
+            }
+        }
+        
 
     }
 }

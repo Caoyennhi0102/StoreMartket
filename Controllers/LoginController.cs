@@ -58,6 +58,8 @@ namespace StoreMartket.Controllers
                 return Json(new { success = false, message = "Mật khẩu không đúng. Bạn đã thử sai " + failedAttempts + " lần." });
             }
             Session["FailedLoginAttempts"] = 0;
+            string getClientIp = GetClientIp();
+            user.DiaChiIP = getClientIp;
             user.Locked = true;
             user.TGDangNhap = DateTime.Now;
             _sqlConnectionDatabase.SaveChanges();
@@ -87,6 +89,15 @@ namespace StoreMartket.Controllers
 
                 return computedHash.SequenceEqual(hashBytes);
             }
+        }
+        private string GetClientIp()
+        {
+            var ipAddress = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                ipAddress = Request.UserHostAddress;
+            }
+            return ipAddress;
         }
 
     }
